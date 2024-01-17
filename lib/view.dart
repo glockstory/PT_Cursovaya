@@ -11,20 +11,19 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Faculty> faculties = [];
   FacultyController _facultyController = FacultyController();
-
   @override
   void initState() {
     super.initState();
     fetchData();
-  }
+    }
 
   Future<void> fetchData() async {
     String urlString = 'https://www.vstu.ru/university/fakultety-i-kafedry/';
-
+    _facultyController.fetchDataAsJson(urlString);
     try {
-      List<Faculty> data = await _facultyController.fetchData(urlString);
+      //List<Faculty> data = await _facultyController.fetchData(urlString);
       setState(() {
-        faculties = data;
+        //faculties = data;
       });
     } catch (e) {
       print('Error: $e');
@@ -47,22 +46,52 @@ class _MyHomePageState extends State<MyHomePage> {
                 return ListTile(
                   title: Text(faculties[index].name),
                   onTap: () {
-                    // Handle tap on .fak_link
-                    // You can navigate to a new page or show more details
-                    // about the selected faculty.
+                    print(faculties[index].resourceLinks);
+                Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FacultyDetailsPage(faculty: faculties[index], facultyIndex: index,),
+                      ),);
                     print('Tapped on ${faculties[index].name}');
                   },
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:
-                        faculties[index].liData.map((li) => Text(li)).toList(),
-                  ),
                 );
               },
             ),
     );
   }
 }
+
+class FacultyDetailsPage extends StatelessWidget {
+  final Faculty faculty;
+  final int facultyIndex;
+  FacultyDetailsPage({required this.faculty, required this.facultyIndex});
+
+  @override
+  Widget build(BuildContext context) {
+
+  
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${faculty.name}'),
+      ),
+      body: ListView.builder(
+        itemCount: faculty.resourceLinks[facultyIndex].length,
+        itemBuilder: (context, index) {
+          return ListTile(  
+            title: ElevatedButton(
+              onPressed: () {
+
+                print(faculty.resourceLinks[index].length);
+                // Обработайте нажатие на ресурс по вашему усмотрению
+                print('Tapped on ${faculty.resourceNames[index]}');
+              },
+              child: Text(faculty.resourceLinks[facultyIndex]),
+          ));
+        },
+      ),
+    );
+  }
+} 
 
 class MyApp extends StatelessWidget {
   @override
